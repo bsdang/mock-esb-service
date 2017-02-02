@@ -22,18 +22,23 @@ import module namespace ch = "http://marklogic.com/roxy/controller-helper" at "/
 
 (: The request library provides awesome helper methods to abstract get-request-field :)
 import module namespace req = "http://marklogic.com/roxy/request" at "/roxy/lib/request.xqy";
+import module namespace json="http://marklogic.com/xdmp/json" at "/MarkLogic/json/json.xqy";
+
+declare namespace j = "http://marklogic.com/xdmp/json/basic";
 
 declare option xdmp:mapping "false";
 
 declare function c:main() as item()*
 {
   let $body := xdmp:get-request-body()
-  let $_log := xdmp:log( fn:concat(" *** Message Received by Mock ESB SERVICE ***",  xdmp:quote($body), "info")  
-  let $result :=    
+  let $_log := xdmp:log( fn:concat(" *** Message Received by Mock ESB SERVICE ***",  $body), "info")  
+  let $result := json:transform-from-json($body)/j:id
+  let $_log := xdmp:log( fn:concat(" *** ID ***",  $result), "info")  
   return (
-     ch:add-value("response", $result),    
-     ch:use-view(('esb/main'), "xml"),
-     ch:use-layout(("main"), "xml")
+     ch:add-value("response", $result),
+     ch:set-format("json"),
+     ch:use-view(('esb/empty-view'), "json"),
+     ch:use-layout(("esb"), "json")
    )
 };
 
