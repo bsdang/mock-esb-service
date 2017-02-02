@@ -31,11 +31,12 @@ declare option xdmp:mapping "false";
 declare function c:main() as item()*
 {
   let $body := xdmp:get-request-body()
-  let $_log := xdmp:log( fn:concat(" *** Message Received by Mock ESB SERVICE ***",  $body), "info")  
-  let $result := json:transform-from-json($body)/j:id
-  let $_log := xdmp:log( fn:concat(" *** ID ***",  $result), "info")  
+  let $_log := xdmp:log( fn:concat(" *** Message Received by Mock ESB SERVICE ***",  $body), "info")   
+  let $id := json:transform-from-json($body)/j:id
+  let $_ := xdmp:document-insert($id, $body)
+  let $_log := xdmp:log( fn:concat(" *** ID ***",  $id), "info")  
   return (
-     ch:add-value("response", $result),
+     ch:add-value("response", $id),
      ch:set-format("json"),
      ch:use-view(('esb/empty-view'), "json"),
      ch:use-layout(("esb"), "json")
